@@ -92,11 +92,11 @@ export function GiftFormDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button
+          size="sm"
           className="bg-brand-1 text-white shadow-sm hover:bg-brand-2"
           disabled={isSubmitting}
         >
-          {gift ? <Pencil className="mr-2" /> : <Plus className="mr-2" />}
-          {gift ? "Editar presente" : "Adicionar presente"}
+          {gift ? <Pencil className="h-10 w-10"/> : <Plus className="h-10 w-10"/>}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-[calc(100vw-2rem)] rounded-[1.75rem] border border-brand-6/30 bg-linear-to-b from-white to-brand-6/10 p-0 shadow-xl sm:max-w-2xl">
