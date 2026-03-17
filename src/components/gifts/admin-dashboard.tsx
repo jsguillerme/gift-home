@@ -40,7 +40,7 @@ export function AdminDashboard({
 
   return (
     <div className="min-h-screen bg-linear-to-br from-brand-6/30 via-brand-5/10 to-brand-6/5 pb-8">
-      <div className="sticky top-0 z-10 bg-white/90 shadow-sm backdrop-blur-sm">
+      <div className="sticky top-0 z-10 bg-background shadow-sm backdrop-blur-sm">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div className="rounded-2xl bg-linear-to-br from-brand-1 to-brand-2 p-3">

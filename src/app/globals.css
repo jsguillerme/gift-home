@@ -2,8 +2,6 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
-
 :root {
   --font-size: 16px;
   /* Paleta suave e confortável: tons de azul-esverdeado e neutros quentes */
@@ -50,52 +48,6 @@
   --sidebar-accent-foreground: #2c3e42;
   --sidebar-border: rgba(44, 62, 66, 0.08);
   --sidebar-ring: var(--brand-4);
-}
-
-.dark {
-  /* Paleta dark confortável: mesma identidade em tons escuros de azul-esverdeado */
-  --brand-1: #5a8a9a;
-  --brand-2: #7aa3b0;
-  --brand-3: #9bbcc4;
-  --brand-4: #b8cfd6;
-  --brand-5: #c5d9de;
-  --brand-6: #243840;
-  --background: #1a2528;
-  --foreground: #e2e8eb;
-  --card: #1e2c31;
-  --card-foreground: #e2e8eb;
-  --popover: #1e2c31;
-  --popover-foreground: #e2e8eb;
-  --primary: var(--brand-1);
-  --primary-foreground: #ffffff;
-  --secondary: #243840;
-  --secondary-foreground: #e2e8eb;
-  --muted: #243840;
-  --muted-foreground: #8b9ca3;
-  --accent: #2a3d42;
-  --accent-foreground: #e2e8eb;
-  --destructive: #c45c5c;
-  --destructive-foreground: #ffffff;
-  --border: rgba(226, 232, 235, 0.12);
-  --input: transparent;
-  --input-background: #243840;
-  --switch-background: #3d6b7c;
-  --font-weight-medium: 500;
-  --font-weight-normal: 400;
-  --ring: var(--brand-3);
-  --chart-1: oklch(0.6 0.08 205);
-  --chart-2: oklch(0.65 0.06 175);
-  --chart-3: oklch(0.55 0.05 220);
-  --chart-4: oklch(0.72 0.08 85);
-  --chart-5: oklch(0.68 0.07 65);
-  --sidebar: #1e2c31;
-  --sidebar-foreground: #e2e8eb;
-  --sidebar-primary: var(--brand-1);
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #243840;
-  --sidebar-accent-foreground: #e2e8eb;
-  --sidebar-border: rgba(226, 232, 235, 0.1);
-  --sidebar-ring: var(--brand-3);
 }
 
 @theme inline {
