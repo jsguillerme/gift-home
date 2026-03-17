@@ -75,10 +75,34 @@ export function useGifts(enabled: boolean) {
     }
   }
 
+  async function runMutation(action: () => Promise<void>, successMessage: string) {
+    setIsSubmitting(true)
+    setFeedback(null)
+
+    try {
+      await action()
+      const nextGifts = await getGifts()
+      setGifts(nextGifts)
+      setFeedback({
+        type: "success",
+        message: successMessage,
+      })
+      return true
+    } catch (error) {
+      setFeedback({
+        type: "error",
+        message: getGiftErrorMessage(error),
+      })
+      return false
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return {
     clearFeedback: () => setFeedback(null),
     createGift: (payload: GiftMutationInput) =>
-      runAction(() => createGift(payload).then(() => undefined), "Presente criado com sucesso."),
+      runMutation(() => createGift(payload).then(() => undefined), "Presente criado com sucesso."),
     deleteGift: (giftId: string) =>
       runAction(() => deleteGift(giftId), "Presente removido com sucesso."),
     feedback,
@@ -92,6 +116,6 @@ export function useGifts(enabled: boolean) {
     clearGiftReservation: (giftId: string) =>
       runAction(() => clearGiftReservation(giftId), "Reserva liberada com sucesso."),
     updateGift: (giftId: string, payload: GiftMutationInput) =>
-      runAction(() => updateGift(giftId, payload).then(() => undefined), "Presente atualizado com sucesso."),
+      runMutation(() => updateGift(giftId, payload).then(() => undefined), "Presente atualizado com sucesso."),
   }
 }

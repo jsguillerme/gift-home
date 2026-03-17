@@ -18,7 +18,7 @@ interface GiftCardProps {
   onDelete?: (giftId: string) => Promise<void> | void
   onReserve?: (giftId: string) => Promise<void> | void
   onUnreserve?: (giftId: string) => Promise<void> | void
-  onUpdate?: (giftId: string, payload: GiftMutationInput) => Promise<void> | void
+  onUpdate?: (giftId: string, payload: GiftMutationInput) => Promise<boolean> | boolean
 }
 
 function formatPrice(price: number | null) {
@@ -84,10 +84,15 @@ export function GiftCard({
       </div>
 
       <CardContent className="space-y-4 p-4">
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           <h3 className="line-clamp-2 text-lg font-semibold text-brand-1">
             {gift.name}
           </h3>
+          {gift.color ? (
+            <div className="inline-flex items-center rounded-full bg-brand-6/20 px-2.5 py-1 text-xs font-medium text-brand-2">
+              Cor: {gift.color}
+            </div>
+          ) : null}
           {gift.description ? (
             <p className="line-clamp-3 text-sm text-stone-600">{gift.description}</p>
           ) : null}

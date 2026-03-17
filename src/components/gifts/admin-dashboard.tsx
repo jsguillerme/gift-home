@@ -16,10 +16,10 @@ interface AdminDashboardProps {
   isLoading?: boolean
   isSubmitting?: boolean
   onClearReservation: (giftId: string) => Promise<void> | void
-  onCreateGift: (payload: GiftMutationInput) => Promise<void> | void
+  onCreateGift: (payload: GiftMutationInput) => Promise<boolean> | boolean
   onDeleteGift: (giftId: string) => Promise<void> | void
   onLogout: () => Promise<void> | void
-  onUpdateGift: (giftId: string, payload: GiftMutationInput) => Promise<void> | void
+  onUpdateGift: (giftId: string, payload: GiftMutationInput) => Promise<boolean> | boolean
   user: AppUser
 }
 
@@ -154,7 +154,7 @@ function GiftGrid({
   isSubmitting: boolean
   onClearReservation: (giftId: string) => Promise<void> | void
   onDeleteGift: (giftId: string) => Promise<void> | void
-  onUpdateGift: (giftId: string, payload: GiftMutationInput) => Promise<void> | void
+  onUpdateGift: (giftId: string, payload: GiftMutationInput) => Promise<boolean> | boolean
 }) {
   if (isLoading) {
     return <p className="text-sm text-stone-600">Carregando presentes...</p>

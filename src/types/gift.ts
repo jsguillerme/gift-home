@@ -3,6 +3,7 @@ export type GiftStatus = "available" | "reserved"
 export interface Gift {
   id: string
   name: string
+  color: string | null
   description: string | null
   imageUrl: string | null
   price: number | null
@@ -16,6 +17,7 @@ export interface Gift {
 
 export interface GiftFormValues {
   name: string
+  color: string
   description: string
   imageUrl: string
   price: string
@@ -24,6 +26,7 @@ export interface GiftFormValues {
 
 export interface GiftMutationInput {
   name: string
+  color?: string | null
   description?: string | null
   imageUrl?: string | null
   price?: number | null

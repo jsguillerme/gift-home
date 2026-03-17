@@ -50,8 +50,6 @@ export async function signInWithGoogle() {
     },
   })
 
-  console.log('error', error)
-
   if (error) {
     throw error
   }
@@ -91,6 +89,18 @@ export async function getCurrentUser() {
 export async function exchangeCodeForSession(authCode: string) {
   const supabase = getSupabaseBrowserClient()
   const { error } = await supabase.auth.exchangeCodeForSession(authCode)
+
+  if (error) {
+    throw error
+  }
+}
+
+export async function setSessionFromTokens(accessToken: string, refreshToken: string) {
+  const supabase = getSupabaseBrowserClient()
+  const { error } = await supabase.auth.setSession({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  })
 
   if (error) {
     throw error

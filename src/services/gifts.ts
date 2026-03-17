@@ -8,6 +8,7 @@ import type { Gift, GiftMutationInput } from "@/src/types/gift"
 type GiftRow = {
   id: string
   name: string
+  color: string | null
   description: string | null
   image_url: string | null
   price: number | null
@@ -23,6 +24,7 @@ function mapGift(row: GiftRow): Gift {
   return {
     id: row.id,
     name: row.name,
+    color: row.color,
     description: row.description,
     imageUrl: row.image_url,
     price: row.price,
@@ -38,6 +40,7 @@ function mapGift(row: GiftRow): Gift {
 function normalizeGiftPayload(payload: GiftMutationInput) {
   return {
     name: payload.name.trim(),
+    color: payload.color?.trim() || null,
     description: payload.description?.trim() || null,
     image_url: payload.imageUrl?.trim() || null,
     price: payload.price ?? null,
@@ -50,7 +53,7 @@ export async function getGifts() {
   const { data, error } = await supabase
     .from("gifts")
     .select(
-      "id, name, description, image_url, price, link, status, reserved_by_user_id, created_at, updated_at, reserved_by:users!gifts_reserved_by_user_id_fkey(name)"
+      "id, name, color, description, image_url, price, link, status, reserved_by_user_id, created_at, updated_at, reserved_by:users!gifts_reserved_by_user_id_fkey(name)"
     )
     .order("created_at", { ascending: false })
 
@@ -72,7 +75,7 @@ export async function createGift(payload: GiftMutationInput) {
       reserved_by_user_id: null,
     })
     .select(
-      "id, name, description, image_url, price, link, status, reserved_by_user_id, created_at, updated_at, reserved_by:users!gifts_reserved_by_user_id_fkey(name)"
+      "id, name, color, description, image_url, price, link, status, reserved_by_user_id, created_at, updated_at, reserved_by:users!gifts_reserved_by_user_id_fkey(name)"
     )
     .single()
 
@@ -94,7 +97,7 @@ export async function updateGift(giftId: string, payload: GiftMutationInput) {
     })
     .eq("id", giftId)
     .select(
-      "id, name, description, image_url, price, link, status, reserved_by_user_id, created_at, updated_at, reserved_by:users!gifts_reserved_by_user_id_fkey(name)"
+      "id, name, color, description, image_url, price, link, status, reserved_by_user_id, created_at, updated_at, reserved_by:users!gifts_reserved_by_user_id_fkey(name)"
     )
     .single()
 
