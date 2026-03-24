@@ -30,8 +30,6 @@ export default function HomePage() {
         feedback={gifts.feedback}
         isLoading={gifts.isLoading}
         isSubmitting={gifts.isSubmitting || auth.isSigningOut}
-        onCreateGift={gifts.createGift}
-        onUpdateGift={gifts.updateGift}
         onDeleteGift={gifts.deleteGift}
         onClearReservation={gifts.clearGiftReservation}
         onLogout={auth.logout}

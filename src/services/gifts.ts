@@ -8,6 +8,7 @@ import type { Gift, GiftMutationInput } from "@/src/types/gift"
 type GiftRow = {
   id: string
   name: string
+  category: string
   color: string | null
   description: string | null
   image_url: string | null
@@ -24,6 +25,7 @@ function mapGift(row: GiftRow): Gift {
   return {
     id: row.id,
     name: row.name,
+    category: row.category,
     color: row.color,
     description: row.description,
     imageUrl: row.image_url,
@@ -40,6 +42,7 @@ function mapGift(row: GiftRow): Gift {
 function normalizeGiftPayload(payload: GiftMutationInput) {
   return {
     name: payload.name.trim(),
+    category: payload.category?.trim() ?? "",
     color: payload.color?.trim() || null,
     description: payload.description?.trim() || null,
     image_url: payload.imageUrl?.trim() || null,
@@ -48,13 +51,14 @@ function normalizeGiftPayload(payload: GiftMutationInput) {
   }
 }
 
+const giftSelect =
+  "id, name, category, color, description, image_url, price, link, status, reserved_by_user_id, created_at, updated_at, reserved_by:users!gifts_reserved_by_user_id_fkey(name)"
+
 export async function getGifts() {
   const supabase = getSupabaseBrowserClient()
   const { data, error } = await supabase
     .from("gifts")
-    .select(
-      "id, name, color, description, image_url, price, link, status, reserved_by_user_id, created_at, updated_at, reserved_by:users!gifts_reserved_by_user_id_fkey(name)"
-    )
+    .select(giftSelect)
     .order("created_at", { ascending: false })
 
   if (error) {
@@ -62,6 +66,21 @@ export async function getGifts() {
   }
 
   return (data ?? []).map((gift) => mapGift(gift as GiftRow))
+}
+
+export async function getGiftById(giftId: string) {
+  const supabase = getSupabaseBrowserClient()
+  const { data, error } = await supabase
+    .from("gifts")
+    .select(giftSelect)
+    .eq("id", giftId)
+    .single()
+
+  if (error) {
+    throw error
+  }
+
+  return mapGift(data as GiftRow)
 }
 
 export async function createGift(payload: GiftMutationInput) {
@@ -74,9 +93,7 @@ export async function createGift(payload: GiftMutationInput) {
       status: "available",
       reserved_by_user_id: null,
     })
-    .select(
-      "id, name, color, description, image_url, price, link, status, reserved_by_user_id, created_at, updated_at, reserved_by:users!gifts_reserved_by_user_id_fkey(name)"
-    )
+    .select(giftSelect)
     .single()
 
   if (error) {
@@ -96,9 +113,7 @@ export async function updateGift(giftId: string, payload: GiftMutationInput) {
       updated_at: new Date().toISOString(),
     })
     .eq("id", giftId)
-    .select(
-      "id, name, color, description, image_url, price, link, status, reserved_by_user_id, created_at, updated_at, reserved_by:users!gifts_reserved_by_user_id_fkey(name)"
-    )
+    .select(giftSelect)
     .single()
 
   if (error) {

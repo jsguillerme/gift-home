@@ -1,13 +1,13 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 import { Banknote, Check, ExternalLink, Gift, Trash2, Undo2 } from "lucide-react"
 
-import { GiftFormDialog } from "@/src/components/gifts/gift-form-dialog"
 import { Badge } from "@/src/components/ui/badge"
 import { Button } from "@/src/components/ui/button"
 import { Card, CardContent } from "@/src/components/ui/card"
-import type { Gift as GiftType, GiftMutationInput } from "@/src/types/gift"
+import type { Gift as GiftType } from "@/src/types/gift"
 
 interface GiftCardProps {
   gift: GiftType
@@ -18,7 +18,6 @@ interface GiftCardProps {
   onDelete?: (giftId: string) => Promise<void> | void
   onReserve?: (giftId: string) => Promise<void> | void
   onUnreserve?: (giftId: string) => Promise<void> | void
-  onUpdate?: (giftId: string, payload: GiftMutationInput) => Promise<boolean> | boolean
 }
 
 function formatPrice(price: number | null) {
@@ -41,7 +40,6 @@ export function GiftCard({
   onDelete,
   onReserve,
   onUnreserve,
-  onUpdate,
 }: GiftCardProps) {
   const isReserved = gift.status === "reserved"
   const isReservedByCurrentUser = gift.reservedByUserId === currentUserId
@@ -97,6 +95,11 @@ export function GiftCard({
               Cor: {gift.color}
             </div>
           ) : null}
+          {gift.category ? (
+            <div className="inline-flex items-center rounded-full bg-brand-1/10 px-1.5 py-0.5 text-[10px] font-medium text-brand-1">
+              Categoria: {gift.category}
+            </div>
+          ) : null}
           {gift.description ? (
             <p className="line-clamp-2 text-[11px] leading-snug text-stone-600">
               {gift.description}
@@ -126,13 +129,9 @@ export function GiftCard({
 
           {isAdmin ? (
             <>
-              {onUpdate ? (
-                <GiftFormDialog
-                  gift={gift}
-                  isSubmitting={isSubmitting}
-                  onSubmit={(payload) => onUpdate(gift.id, payload)}
-                />
-              ) : null}
+              <Button size="sm" variant="outline" asChild>
+                <Link href={`/gifts/${gift.id}/edit`}>Editar</Link>
+              </Button>
               {isReserved && onClearReservation ? (
                 <Button
                   size="sm"

@@ -1,14 +1,16 @@
 "use client"
 
+import { useMemo, useState } from "react"
+import Link from "next/link"
 import { Gift, ShieldCheck } from "lucide-react"
 
 import { GiftCard } from "@/src/components/gifts/gift-card"
-import { GiftFormDialog } from "@/src/components/gifts/gift-form-dialog"
+import { GiftListToolbar } from "@/src/components/gifts/gift-list-toolbar"
 import { Badge } from "@/src/components/ui/badge"
 import { Button } from "@/src/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
 import type { AppUser } from "@/src/types/auth"
-import type { Gift as GiftType, GiftMutationInput } from "@/src/types/gift"
+import type { Gift as GiftType } from "@/src/types/gift"
 
 interface AdminDashboardProps {
   feedback?: { message: string; type: "success" | "error" } | null
@@ -16,10 +18,8 @@ interface AdminDashboardProps {
   isLoading?: boolean
   isSubmitting?: boolean
   onClearReservation: (giftId: string) => Promise<void> | void
-  onCreateGift: (payload: GiftMutationInput) => Promise<boolean> | boolean
   onDeleteGift: (giftId: string) => Promise<void> | void
   onLogout: () => Promise<void> | void
-  onUpdateGift: (giftId: string, payload: GiftMutationInput) => Promise<boolean> | boolean
   user: AppUser
 }
 
@@ -29,14 +29,20 @@ export function AdminDashboard({
   isLoading = false,
   isSubmitting = false,
   onClearReservation,
-  onCreateGift,
   onDeleteGift,
   onLogout,
-  onUpdateGift,
   user,
 }: AdminDashboardProps) {
+  const [selectedCategory, setSelectedCategory] = useState("all")
   const availableGifts = gifts.filter((gift) => gift.status === "available")
   const reservedGifts = gifts.filter((gift) => gift.status === "reserved")
+  const categoryOptions = useMemo(
+    () =>
+      Array.from(new Set(gifts.map((gift) => gift.category).filter(Boolean))).sort((a, b) =>
+        a.localeCompare(b, "pt-BR")
+      ),
+    [gifts]
+  )
 
   return (
     <div className="min-h-screen bg-linear-to-br from-brand-6/30 via-brand-5/10 to-brand-6/5 pb-8">
@@ -61,7 +67,14 @@ export function AdminDashboard({
               <ShieldCheck className="mr-1" />
               Admin
             </Badge>
-            <GiftFormDialog isSubmitting={isSubmitting} onSubmit={onCreateGift} />
+            <Button
+              asChild
+              size="sm"
+              className="bg-brand-1 text-white shadow-sm hover:bg-brand-2"
+              disabled={isSubmitting}
+            >
+              <Link href="/gifts/new">Novo presente</Link>
+            </Button>
             <Button variant="outline" onClick={onLogout}>
               Sair
             </Button>
@@ -82,6 +95,12 @@ export function AdminDashboard({
           </p>
         ) : null}
 
+        <GiftListToolbar
+          categoryOptions={categoryOptions}
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+        />
+
         <Tabs defaultValue="all">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="all">Todos ({gifts.length})</TabsTrigger>
@@ -100,9 +119,9 @@ export function AdminDashboard({
               isSubmitting={isSubmitting}
               isAdmin
               currentUserId={user.id}
+              selectedCategory={selectedCategory}
               onClearReservation={onClearReservation}
               onDeleteGift={onDeleteGift}
-              onUpdateGift={onUpdateGift}
             />
           </TabsContent>
 
@@ -113,9 +132,9 @@ export function AdminDashboard({
               isSubmitting={isSubmitting}
               isAdmin
               currentUserId={user.id}
+              selectedCategory={selectedCategory}
               onClearReservation={onClearReservation}
               onDeleteGift={onDeleteGift}
-              onUpdateGift={onUpdateGift}
             />
           </TabsContent>
 
@@ -126,9 +145,9 @@ export function AdminDashboard({
               isSubmitting={isSubmitting}
               isAdmin
               currentUserId={user.id}
+              selectedCategory={selectedCategory}
               onClearReservation={onClearReservation}
               onDeleteGift={onDeleteGift}
-              onUpdateGift={onUpdateGift}
             />
           </TabsContent>
         </Tabs>
@@ -143,24 +162,29 @@ function GiftGrid({
   isAdmin,
   isLoading,
   isSubmitting,
+  selectedCategory,
   onClearReservation,
   onDeleteGift,
-  onUpdateGift,
 }: {
   currentUserId: string
   gifts: GiftType[]
   isAdmin: boolean
   isLoading: boolean
   isSubmitting: boolean
+  selectedCategory: string
   onClearReservation: (giftId: string) => Promise<void> | void
   onDeleteGift: (giftId: string) => Promise<void> | void
-  onUpdateGift: (giftId: string, payload: GiftMutationInput) => Promise<boolean> | boolean
 }) {
+  const filteredGifts =
+    selectedCategory === "all"
+      ? gifts
+      : gifts.filter((gift) => gift.category === selectedCategory)
+
   if (isLoading) {
     return <p className="text-sm text-stone-600">Carregando presentes...</p>
   }
 
-  if (!gifts.length) {
+  if (!filteredGifts.length) {
     return (
       <div className="rounded-xl bg-white p-8 text-center text-sm text-stone-600 shadow-sm">
         Nenhum presente encontrado.
@@ -170,7 +194,7 @@ function GiftGrid({
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {gifts.map((gift) => (
+      {filteredGifts.map((gift) => (
         <GiftCard
           key={gift.id}
           gift={gift}
@@ -179,7 +203,6 @@ function GiftGrid({
           isSubmitting={isSubmitting}
           onClearReservation={onClearReservation}
           onDelete={onDeleteGift}
-          onUpdate={onUpdateGift}
         />
       ))}
     </div>

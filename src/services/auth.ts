@@ -1,6 +1,6 @@
 "use client"
 
-import type { Session, User } from "@supabase/supabase-js"
+import type { AuthChangeEvent, Session, User } from "@supabase/supabase-js"
 
 import { isAdminUser } from "@/src/config/auth"
 import { getSupabaseBrowserClient } from "@/src/lib/supabase/client"
@@ -37,7 +37,6 @@ function getBaseUrl() {
 export async function signInWithGoogle() {
   const supabase = getSupabaseBrowserClient()
   const redirectTo = `${getBaseUrl()}/auth/callback`
-
 
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
@@ -145,6 +144,21 @@ export async function upsertUser(user: User) {
   } satisfies AppUser
 }
 
+export function mapSessionUserToProfile(user: User): AppUser {
+  const profile = mapUserProfile(user)
+  const timestamp = new Date(0).toISOString()
+
+  return {
+    id: profile.id,
+    email: profile.email,
+    name: profile.name,
+    avatarUrl: profile.avatarUrl,
+    role: profile.role,
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  }
+}
+
 export function getAuthErrorMessage(error: unknown) {
   if (typeof error === "object" && error && "message" in error) {
     return String(error.message)
@@ -154,7 +168,7 @@ export function getAuthErrorMessage(error: unknown) {
 }
 
 export function subscribeToAuthChanges(
-  callback: (event: string, session: Session | null) => void
+  callback: (event: AuthChangeEvent, session: Session | null) => void
 ) {
   const supabase = getSupabaseBrowserClient()
 

@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import type { Session } from "@supabase/supabase-js"
+import { useEffect, useRef, useState } from "react"
+import type { AuthChangeEvent, Session } from "@supabase/supabase-js"
 
 import {
   getAuthErrorMessage,
   getCurrentSession,
+  mapSessionUserToProfile,
   signInWithGoogle,
   signOut,
   subscribeToAuthChanges,
@@ -20,15 +21,29 @@ export function useAuth() {
   const [isSigningIn, setIsSigningIn] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const syncedUserIdRef = useRef<string | null>(null)
+  const profileRef = useRef<AppUser | null>(null)
+
+  useEffect(() => {
+    profileRef.current = profile
+  }, [profile])
 
   useEffect(() => {
     let isMounted = true
 
-    async function syncSession(nextSession: Session | null) {
+    async function syncSession(nextSession: Session | null, options?: { syncProfile?: boolean }) {
       setSession(nextSession)
 
       if (!nextSession?.user) {
         setProfile(null)
+        syncedUserIdRef.current = null
+        setIsLoading(false)
+        return
+      }
+
+      if (!options?.syncProfile) {
+        setProfile((currentProfile) => currentProfile ?? mapSessionUserToProfile(nextSession.user))
+        setError(null)
         setIsLoading(false)
         return
       }
@@ -41,6 +56,7 @@ export function useAuth() {
         }
 
         setProfile(syncedProfile)
+        syncedUserIdRef.current = nextSession.user.id
         setError(null)
       } catch (syncError) {
         if (!isMounted) {
@@ -55,6 +71,27 @@ export function useAuth() {
       }
     }
 
+    async function handleAuthChange(event: AuthChangeEvent, nextSession: Session | null) {
+      if (!isMounted) {
+        return
+      }
+
+      if (event === "SIGNED_OUT" || !nextSession?.user) {
+        await syncSession(null)
+        return
+      }
+
+      if (event === "SIGNED_IN" || event === "USER_UPDATED") {
+        const shouldSyncProfile =
+          syncedUserIdRef.current !== nextSession.user.id || profileRef.current === null
+
+        await syncSession(nextSession, { syncProfile: shouldSyncProfile })
+        return
+      }
+
+      await syncSession(nextSession)
+    }
+
     async function bootstrap() {
       try {
         const currentSession = await getCurrentSession()
@@ -63,7 +100,7 @@ export function useAuth() {
           return
         }
 
-        await syncSession(currentSession)
+        await syncSession(currentSession, { syncProfile: Boolean(currentSession?.user) })
       } catch (sessionError) {
         if (!isMounted) {
           return
@@ -78,13 +115,8 @@ export function useAuth() {
 
     const {
       data: { subscription },
-    } = subscribeToAuthChanges((_event, nextSession) => {
-      if (!isMounted) {
-        return
-      }
-
-      setIsLoading(true)
-      void syncSession(nextSession)
+    } = subscribeToAuthChanges((event, nextSession) => {
+      void handleAuthChange(event, nextSession)
     })
 
     return () => {
@@ -114,6 +146,7 @@ export function useAuth() {
       await signOut()
       setProfile(null)
       setSession(null)
+      syncedUserIdRef.current = null
     } catch (logoutError) {
       setError(getAuthErrorMessage(logoutError))
     } finally {

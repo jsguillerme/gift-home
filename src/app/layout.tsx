@@ -1,10 +1,16 @@
-import { Nunito_Sans } from "next/font/google"
+import type { Metadata } from "next"
+import { DM_Sans } from "next/font/google"
 
 import "./globals.css"
 import { ThemeProvider } from "@/src/components/theme-provider"
-import { cn } from "@/src/lib/utils";
+import { cn } from "@/src/lib/utils"
 
-const nunitoSans = Nunito_Sans({subsets:['latin'],variable:'--font-sans'})
+const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-sans" })
+
+export const metadata: Metadata = {
+  title: "Presentes da Gabriella e Guilherme",
+  description: "Lista de presentes para a Gabriella e Guilherme",
+}
 
 export default function RootLayout({
   children,
@@ -13,8 +19,9 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
-      className={cn("antialiased", nunitoSans.variable, "font-sans")}
+      suppressHydrationWarning
+      lang="pt-BR"
+      className={cn("antialiased", dmSans.variable, "font-sans")}
     >
       <body>
         <ThemeProvider>{children}</ThemeProvider>

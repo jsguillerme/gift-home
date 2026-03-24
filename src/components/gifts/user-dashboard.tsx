@@ -1,8 +1,10 @@
 "use client"
 
+import { useMemo, useState } from "react"
 import { Gift, Heart } from "lucide-react"
 
 import { GiftCard } from "@/src/components/gifts/gift-card"
+import { GiftListToolbar } from "@/src/components/gifts/gift-list-toolbar"
 import { Badge } from "@/src/components/ui/badge"
 import { Button } from "@/src/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
@@ -30,8 +32,16 @@ export function UserDashboard({
   onUnreserveGift,
   user,
 }: UserDashboardProps) {
+  const [selectedCategory, setSelectedCategory] = useState("all")
   const availableGifts = gifts.filter((gift) => gift.status === "available")
   const reservedByUser = gifts.filter((gift) => gift.reservedByUserId === user.id)
+  const categoryOptions = useMemo(
+    () =>
+      Array.from(new Set(gifts.map((gift) => gift.category).filter(Boolean))).sort((a, b) =>
+        a.localeCompare(b, "pt-BR")
+      ),
+    [gifts]
+  )
 
   return (
     <div className="min-h-screen bg-linear-to-br from-brand-6/30 via-brand-5/10 to-brand-6/5 pb-8">
@@ -76,6 +86,12 @@ export function UserDashboard({
           </p>
         ) : null}
 
+        <GiftListToolbar
+          categoryOptions={categoryOptions}
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+        />
+
         <Tabs defaultValue="available">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="available">
@@ -90,6 +106,7 @@ export function UserDashboard({
               gifts={availableGifts}
               isLoading={isLoading}
               isSubmitting={isSubmitting}
+              selectedCategory={selectedCategory}
               userId={user.id}
               onReserveGift={onReserveGift}
               onUnreserveGift={onUnreserveGift}
@@ -101,6 +118,7 @@ export function UserDashboard({
               gifts={gifts}
               isLoading={isLoading}
               isSubmitting={isSubmitting}
+              selectedCategory={selectedCategory}
               userId={user.id}
               onReserveGift={onReserveGift}
               onUnreserveGift={onUnreserveGift}
@@ -112,6 +130,7 @@ export function UserDashboard({
               gifts={reservedByUser}
               isLoading={isLoading}
               isSubmitting={isSubmitting}
+              selectedCategory={selectedCategory}
               userId={user.id}
               onReserveGift={onReserveGift}
               onUnreserveGift={onUnreserveGift}
@@ -129,6 +148,7 @@ function GiftGrid({
   isSubmitting,
   onReserveGift,
   onUnreserveGift,
+  selectedCategory,
   userId,
 }: {
   gifts: GiftType[]
@@ -136,13 +156,19 @@ function GiftGrid({
   isSubmitting: boolean
   onReserveGift: (giftId: string) => Promise<void> | void
   onUnreserveGift: (giftId: string) => Promise<void> | void
+  selectedCategory: string
   userId: string
 }) {
+  const filteredGifts =
+    selectedCategory === "all"
+      ? gifts
+      : gifts.filter((gift) => gift.category === selectedCategory)
+
   if (isLoading) {
     return <p className="text-sm text-stone-600">Carregando presentes...</p>
   }
 
-  if (!gifts.length) {
+  if (!filteredGifts.length) {
     return (
       <div className="rounded-xl bg-white p-8 text-center text-sm text-stone-600 shadow-sm">
         Nenhum presente nesta lista.
@@ -152,7 +178,7 @@ function GiftGrid({
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {gifts.map((gift) => (
+      {filteredGifts.map((gift) => (
         <GiftCard
           key={gift.id}
           gift={gift}
